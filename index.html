@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワード産む</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 少し温かみのあるアヒル色 */
+            --duck-body: #FFD54F;
+            --duck-border: #F57F17;
+            --duck-white: #FFF9C4;
+            --accent-orange: #FF6D00;
+            --text-color: #4E342E;
+            
+            /* 背景のリッチな青緑グラデーション */
+            --bg-top: #4FC3F7;
+            --bg-bottom: #81D4FA;
+            --error-red: #D32F2F;
+        }
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            
+            /* --- 修正箇所: ここから --- */
+            /* 背景をカンマ区切りで重ねます（上が手前、下が奥） */
+            background-image: 
+                /* 1. 波模様（左上） */
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4) 0%, transparent 20%),
+                /* 2. 波模様（右下） */
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.4) 0%, transparent 20%),
+                /* 3. ベースの青グラデーション */
+                linear-gradient(135deg, var(--bg-top) 0%, #E1F5FE 100%);
+            
+            /* サイズもカンマ区切りで指定（波模様は繰り返し、ベースは全画面） */
+            background-size: 300px 300px, 300px 300px, cover;
+            background-repeat: repeat, repeat, no-repeat;
+            background-attachment: fixed; /* スクロールしても背景を固定 */
+            /* --- 修正箇所: ここまで --- */
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .duck-container {
+            background: var(--duck-body);
+            padding: 35px;
+            border-radius: 50px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.15), 
+                inset 0 5px 20px rgba(255,255,255,0.5),
+                0 0 0 8px #FFF; 
+            width: 100%;
+            max-width: 800px;
+            border: 8px solid var(--duck-border);
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: var(--text-color);
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.6);
+        }
+
+        .settings-group {
+            background: rgba(255,255,255,0.5);
+            padding: 18px;
+            border-radius: 25px;
+            margin-bottom: 18px;
+            border: 2px solid rgba(255,255,255,0.6);
+        }
+
+        .label-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 17px;
+        }
+        .label-title::before {
+            content: '●';
+            color: var(--accent-orange);
+            margin-right: 8px;
+            font-size: 12px;
+        }
+
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"] {
+            width: 90px;
+            padding: 8px;
+            border-radius: 12px;
+            border: 3px solid var(--duck-border);
+            font-size: 18px;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+            background: #fff;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        input[type="number"]:focus {
+            border-color: var(--accent-orange);
+        }
+
+        .preset-btn {
+            background: #fff;
+            border: 2px solid var(--duck-border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.05);
+        }
+        .preset-btn:hover {
+            background: var(--duck-white);
+            transform: translateY(-2px);
+            border-color: var(--accent-orange);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 15px;
+            user-select: none;
+        }
+        .checkbox-label input {
+            margin-right: 10px;
+            accent-color: var(--accent-orange);
+            width: 20px; height: 20px; cursor: pointer;
+        }
+
+        #symbol-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid var(--duck-border);
+            font-family: monospace;
+            margin-top: 8px;
+            box-sizing: border-box;
+            background: #fff;
+            font-size: 14px;
+        }
+        #symbol-input:disabled { background: #eee; color: #aaa; border-color: #ccc; }
+
+        .generate-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(to bottom, #FF8F00, #EF6C00);
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #bf360c, 0 15px 25px rgba(239, 108, 0, 0.4);
+            transition: transform 0.1s, box-shadow 0.1s;
+            margin: 25px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .generate-btn::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent);
+        }
+        .generate-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #bf360c;
+        }
+
+        /* --- 結果表示エリア --- */
+        #result-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            border: 4px dashed var(--duck-border); 
+        }
+
+        #result-container::-webkit-scrollbar { width: 10px; }
+        #result-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        #result-container::-webkit-scrollbar-thumb { background: var(--duck-border); border-radius: 10px; }
+
+        .password-card {
+            background: white;
+            padding: 12px;
+            border-radius: 30px; 
+            border: 2px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .password-card:hover {
+            border-color: var(--accent-orange);
+            background-color: #FFF3E0;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .password-card:active {
+            transform: scale(0.96);
+        }
+
+        .copied {
+            background-color: var(--accent-orange) !important;
+            color: white !important;
+            border-color: var(--accent-orange) !important;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center; 
+            margin-top: 15px;
+        }
+        .copy-link {
+            color: var(--text-color);
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 2px dashed var(--accent-orange);
+            transition: color 0.2s;
+        }
+        .copy-link:hover {
+            color: var(--accent-orange);
+        }
+
+        #error-msg {
+            color: var(--error-red);
+            font-size: 15px;
+            text-align: center;
+            min-height: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #3E2723;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            font-size: 14px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.3s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+    </style>
+</head>
+<body>
+
+<div class="duck-container">
+    <h1>🐥🐣🥚 パスワード産むダック 🥚🐣🐥</h1>
+
+    <div class="settings-group">
+        <div class="label-title">長さ（文字数） <small style="margin-left:10px; font-weight:normal; font-size:12px;">※最大50文字</small></div>
+        <div class="input-row">
+            <input type="number" id="length" value="8" min="1" max="50" onchange="validateLimit(this, 50)">
+            <button class="preset-btn" onclick="setVal('length', 8)">8</button>
+            <button class="preset-btn" onclick="setVal('length', 12)">12</button>
+            <button class="preset-btn" onclick="setVal('length', 16)">16</button>
+        </div>
+
+        <div class="label-title">産む個数 <small style="margin-left:10px; font-weight:normal; font-size:12px;">※最大100個</small></div>
+        <div class="input-row">
+            <input type="number" id="count" value="10" min="1" max="100" onchange="validateLimit(this, 100)">
+            <button class="preset-btn" onclick="setVal('count', 10)">10</button>
+            <button class="preset-btn" onclick="setVal('count', 50)">50</button>
+            <button class="preset-btn" onclick="setVal('count', 100)">100</button>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="label-title">中身の成分（使う文字）</div>
+        <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="use-upper" checked>英字 大文字 (A-Z)</label>
+            <label class="checkbox-label"><input type="checkbox" id="use-lower" checked>英字 小文字 (a-z)</label>
+            <label class="checkbox-label"><input type="checkbox" id="use-number" checked>数字 (0-9)</label>
+        </div>
+        <div style="margin-top: 10px;">
+            <label class="checkbox-label"><input type="checkbox" id="use-symbol" onchange="toggleSymbolInput()">記号を含める</label>
+            <input type="text" id="symbol-input" value="/*+.,!?#$%&~|^@;:()[]{}" disabled>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <div class="label-title">オプション</div>
+        <div class="checkbox-group">
+            <label class="checkbox-label" title="1, l, I, 0, O などを見分けやすくします">
+                <input type="checkbox" id="exclude-ambiguous" checked>似通った英数字を省く
+            </label>
+            <label class="checkbox-label" title="同じ文字を2回以上使いません">
+                <input type="checkbox" id="unique-chars">同じ文字を２回以上使わない
+            </label>
+        </div>
+    </div>
+
+    <div id="error-msg"></div>
+    <button class="generate-btn" onclick="generatePasswords()">パスワードを産む！</button>
+
+    <div id="result-container">
+        <div style="color:#795548; grid-column: 1/-1; text-align:center; padding:30px; opacity:0.7;">
+            上のボタンを押すと<br>ここにパスワードが産まれるクワ！
+        </div>
+    </div>
+    
+    <div class="actions">
+        <span class="copy-link" onclick="copyAll()">📋 全てのパスワードをまとめてコピー</span>
+    </div>
+
+</div>
+
+<div id="toast">コピーしたクワ！</div>
+
+<script>
+    // プリセットボタン
+    function setVal(id, val) {
+        document.getElementById(id).value = val;
+    }
+
+    // 数値制限のバリデーション（入力時に即座に修正）
+    function validateLimit(input, max) {
+        if (input.value > max) {
+            input.value = max;
+            showToast(`最大${max}までだクワ！`);
+        } else if (input.value < 1) {
+            input.value = 1;
+        }
+    }
+
+    // 記号入力切替
+    function toggleSymbolInput() {
+        const isChecked = document.getElementById('use-symbol').checked;
+        document.getElementById('symbol-input').disabled = !isChecked;
+    }
+
+    // トースト表示
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // パスワード生成メイン処理
+    let generatedPasswords = []; 
+
+    function generatePasswords() {
+        // 値取得時に再度リミットチェック
+        let lengthInput = document.getElementById('length');
+        let countInput = document.getElementById('count');
+        validateLimit(lengthInput, 50);
+        validateLimit(countInput, 100);
+
+        const length = parseInt(lengthInput.value);
+        const count = parseInt(countInput.value);
+        const useUpper = document.getElementById('use-upper').checked;
+        const useLower = document.getElementById('use-lower').checked;
+        const useNumber = document.getElementById('use-number').checked;
+        const useSymbol = document.getElementById('use-symbol').checked;
+        const symbolStr = document.getElementById('symbol-input').value;
+        const excludeAmbiguous = document.getElementById('exclude-ambiguous').checked;
+        const uniqueChars = document.getElementById('unique-chars').checked;
+        
+        const errorMsg = document.getElementById('error-msg');
+        const container = document.getElementById('result-container');
+
+        errorMsg.textContent = "";
+        generatedPasswords = [];
+        container.innerHTML = "";
+
+        // 文字プール作成
+        let chars = "";
+        if (useUpper) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if (useLower) chars += "abcdefghijklmnopqrstuvwxyz";
+        if (useNumber) chars += "0123456789";
+        if (useSymbol) chars += symbolStr;
+
+        if (excludeAmbiguous) {
+            const ambiguous = ['1', 'l', 'I', '0', 'O', 'o', '|'];
+            ambiguous.forEach(c => { chars = chars.split(c).join(''); });
+        }
+
+        if (chars === "") {
+            errorMsg.textContent = "エラー：文字の種類を選んでクワ！";
+            return;
+        }
+        if (uniqueChars && length > chars.length) {
+            errorMsg.textContent = `エラー：文字数が足りないクワ！(${chars.length}文字以下にして)`;
+            return;
+        }
+
+        // 生成ループ
+        for (let i = 0; i < count; i++) {
+            let password = "";
+            if (uniqueChars) {
+                const shuffled = chars.split('').sort(() => 0.5 - Math.random()).join('');
+                password = shuffled.substring(0, length);
+            } else {
+                // 通常生成
+                // よりランダム性を高めるため crypto.getRandomValues を使用
+                const array = new Uint32Array(length);
+                window.crypto.getRandomValues(array);
+                for (let j = 0; j < length; j++) {
+                    password += chars.charAt(array[j] % chars.length);
+                }
+            }
+            generatedPasswords.push(password);
+            
+            // カード生成
+            const card = document.createElement('div');
+            card.className = 'password-card';
+            card.textContent = password;
+            card.title = "クリックしてコピー";
+            
+            card.onclick = function() {
+                navigator.clipboard.writeText(password).then(() => {
+                    showToast("コピーしたクワ！");
+                    card.classList.add('copied');
+                    setTimeout(() => card.classList.remove('copied'), 200);
+                });
+            };
+            
+            container.appendChild(card);
+        }
+    }
+
+    // 全コピー機能
+    function copyAll() {
+        if (generatedPasswords.length === 0) return;
+        const textToCopy = generatedPasswords.join("\n");
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast("全部まとめてコピーしたクワ！");
+        });
+    }
+</script>
+
+</body>
+</html>
